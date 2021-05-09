@@ -1,0 +1,31 @@
+version: "3"
+services:
+  docker-dind:
+    image: docker:dind
+    privileged: true
+    ports:
+      - 2376:2376
+    volumes:
+      - opofa-jenkins-data:/var/jenkins_home
+      - opofa-jenkins-docker-certs:/certs/client
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+
+  opofa-jenkins:
+    image: opofa/jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - opofa-jenkins-data:/var/jenkins_home
+      - opofa-jenkins-docker-certs:/certs/client:ro
+      - opofa-jenkins-home:/home
+    environment:
+      - DOCKER_HOST=tcp://docker-dind:2376
+      - DOCKER_CERT_PATH=/certs/client
+      - DOCKER_TLS_VERIFY=1
+
+volumes:
+  opofa-jenkins-docker-certs:
+  opofa-jenkins-data:
+  opofa-jenkins-home:
